@@ -165,7 +165,10 @@ def calculate_total_cost(state):
 
 def test_goal(puzzle_state):
 
-    
+    if puzzle_state == goal:
+        return True
+    else:
+        return False
 
 #Main Function that reads in Input and Runs corresponding algorithm
 
