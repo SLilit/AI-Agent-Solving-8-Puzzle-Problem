@@ -3,6 +3,7 @@ import math
 import time
 #import resource
 import queue as Q
+from collections import deque
 
 # the class that reprezents the Puzzle
 goal = (0,1,2,3,4,5,6,7,8)
@@ -23,7 +24,7 @@ class PuzzleState(object):
         self.children = []
         for i, item in enumerate(self.config):
             if item == 0:
-                self.blank_row = i / self.n
+                self.blank_row = int(i / self.n)
                 self.blank_col = i % self.n
                 break
 
@@ -49,7 +50,7 @@ class PuzzleState(object):
             new_config[blank_index], new_config[target] = new_config[target], new_config[blank_index]
             return PuzzleState(tuple(new_config), self.n, parent=self, action="Up", cost=self.cost+1)
 
-    def move_Down(self):
+    def move_down(self):
 
         if self.blank_row == self.n - 1:
             return None
@@ -59,7 +60,7 @@ class PuzzleState(object):
             target = blank_index + self.n
             new_config = list(self.config)
             new_config[blank_index], new_config[target] = new_config[target], new_config[blank_index]
-            return PuzzleState(tuple(new_config), self.n, parent=self, action="Up", cost=self.cost+1)
+            return PuzzleState(tuple(new_config), self.n, parent=self, action="Down", cost=self.cost+1)
 
     def move_left(self):
         
@@ -81,11 +82,11 @@ class PuzzleState(object):
         else:
             blank_index = self.blank_row*self.n + self.blank_col
             target = blank_index + 1
-            new_config = lest(self.config)
+            new_config = list(self.config)
             new_config[blank_index], new_config[target] = new_config[target], new_config[blank_index]
             return PuzzleState(tuple(new_config), self.n, parent=self, action="Right", cost=self.cost+1)
 
-    def expend(self):
+    def expand(self):
 
         if len(self.children) == 0:
             
@@ -113,25 +114,41 @@ class PuzzleState(object):
 def writeOutput():
     pass
 
-def bfs_search(initial_state):
-    frontier = Q.Queue()
-    frontier.put(initial_state.expend())
-    nodes_expanded = 1
-    state = frontier.get().config
+def bfs_search(state):
     
-    while not test_goal(state):
-        frontier.put(state.expend())
+    frontier = Q.Queue()
+    max_search_depth = 1
+    nodes_expanded = 0
+   
+       
+    while not test_goal(state.config):
         nodes_expanded += 1
-        state = frontier.get().config
+        states = state.expand()
+        max_search_depth += 1
+        for i in range(len(states)):
+            if state.parent == None or states[i].config != state.parent.config:
+                frontier.put(states[i])
+
+        state = frontier.get()
+        if max_search_depth > 8000:
+            print ('too long path')
+            break
         
     cost_of_path = state.cost
     search_depth = state.cost
     path_to_goal = [state.action]
+    state = state.parent
     
-    while state.parent is not None:
-        state = state.parent
+    while state.action != 'Initial':
         path_to_goal.append(state.action)
-    path_to_goal = path_to_goal.reverse()
+        state = state.parent
+        
+
+    print ("path_to_goal: ", path_to_goal[::-1])
+    print ("cost_of_path: ", cost_of_path)
+    print ("nodes_expanded: ", nodes_expanded)
+    print ("search_depth: ", search_depth)
+    print ("max_search_depth: ", max_search_depth)
         
     
         
@@ -147,7 +164,8 @@ def calculate_total_cost(state):
     pass
 
 def test_goal(puzzle_state):
-    pass
+
+    
 
 #Main Function that reads in Input and Runs corresponding algorithm
 
