@@ -105,9 +105,57 @@ class PuzzleState(object):
                 self.children.append(right_child)
         
         return self.children        
-            
-                
 
+# Function that writes to output.txt
+
+                
+def writeOutput():
+    pass
+
+def bfs_search(initial_state):
+    pass
+
+def dfs_search(initial_state):
+    pass
+
+def A_star_search(initial_state):
+    pass
+
+def calculate_total_cost(state):
+    pass
+
+def test_goal(puzzle_state):
+    pass
+
+#Main Function that reads in Input and Runs corresponding algorithm
+
+def main():
+
+    sm = sys.argv[1].lower()
+    begin_state = sys.argv[2].split(",")
+    begin_state = tuple(map(int, begin_state))
+    size = int(math.sqrt(len(begin_state)))
+
+    if sm == "bfs":
+        bfs_search(hard_state)
+
+    elif sm = "dfs":
+        dfs_search(hard_state)
+
+    elif sm = "ast":
+        A_star_search(hard_state)
+
+    else:
+        print('Enter valid command argument!')
+
+
+if __name__ == '__main__':
+
+    main()
+
+
+    
+    
 
 
 
