@@ -1,16 +1,17 @@
 import sys
 import math
 import time
-import resource
+#import resource
 import queue as Q
 
 # the class that reprezents the Puzzle
+goal = (0,1,2,3,4,5,6,7,8)
 
 class PuzzleState(object):
     
     def __init__(self, config, n, parent=None, action="Initial", cost=0):
         
-        if n*n != len(config) or n < 2:
+        if n != 3:
             raise Exception("the length of config is not correct!")
 
         self.n = n
@@ -33,7 +34,7 @@ class PuzzleState(object):
             offset = i*self.n
             for j in range(self.n):
                 line.append(self.config[offset + j])
-            print line
+            print (line)
 
 
     def move_up(self):
@@ -113,7 +114,28 @@ def writeOutput():
     pass
 
 def bfs_search(initial_state):
-    pass
+    frontier = Q.Queue()
+    frontier.put(initial_state.expend())
+    nodes_expanded = 1
+    state = frontier.get().config
+    
+    while not test_goal(state):
+        frontier.put(state.expend())
+        nodes_expanded += 1
+        state = frontier.get().config
+        
+    cost_of_path = state.cost
+    search_depth = state.cost
+    path_to_goal = [state.action]
+    
+    while state.parent is not None:
+        state = state.parent
+        path_to_goal.append(state.action)
+    path_to_goal = path_to_goal.reverse()
+        
+    
+        
+ 
 
 def dfs_search(initial_state):
     pass
@@ -135,14 +157,15 @@ def main():
     begin_state = sys.argv[2].split(",")
     begin_state = tuple(map(int, begin_state))
     size = int(math.sqrt(len(begin_state)))
+    hard_state = PuzzleState(begin_state, size)
 
     if sm == "bfs":
         bfs_search(hard_state)
 
-    elif sm = "dfs":
+    elif sm == "dfs":
         dfs_search(hard_state)
 
-    elif sm = "ast":
+    elif sm == "ast":
         A_star_search(hard_state)
 
     else:
