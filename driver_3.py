@@ -117,20 +117,22 @@ def writeOutput():
 def bfs_search(state):
     
     frontier = Q.Queue()
-    max_search_depth = 1
+    max_search_depth = 0
     nodes_expanded = 0
-   
+    front = [str(state.config)]
        
     while not test_goal(state.config):
-        nodes_expanded += 1
         states = state.expand()
-        max_search_depth += 1
+        nodes_expanded += 1
+        if states[0].cost > max_search_depth:
+            max_search_depth = states[0].cost
+        
         for i in range(len(states)):
-            if state.parent == None or states[i].config != state.parent.config:
+            if str(states[i].config) not in front:
                 frontier.put(states[i])
-
+                front.append(str(states[i].config))
         state = frontier.get()
-        if max_search_depth > 8000:
+        if max_search_depth > 80000:
             print ('too long path')
             break
         
@@ -154,8 +156,49 @@ def bfs_search(state):
         
  
 
-def dfs_search(initial_state):
-    pass
+def dfs_search(state):
+
+    frontier = []
+    max_search_depth = 0
+    nodes_expanded = 0
+    front = [str(state.config)]
+    #visited = []
+       
+    while not test_goal(state.config):
+        #visited.append(front.pop())
+        states = state.expand()[::-1]
+        nodes_expanded += 1
+        if states[0].cost > max_search_depth:
+            max_search_depth = states[0].cost
+        
+        for i in range(len(states)):
+            if str(states[i].config) not in front:
+                #continue
+            #elif str(states[i].config) in visited:
+             #   continue
+            #else:
+                frontier.append(states[i])
+                front.append(str(states[i].config))
+        state = frontier.pop()
+        if max_search_depth > 80000:
+            print ('too long path')
+            break
+        
+    cost_of_path = state.cost
+    search_depth = state.cost
+    path_to_goal = [state.action]
+    state = state.parent
+    
+    while state.action != 'Initial':
+        path_to_goal.append(state.action)
+        state = state.parent
+        
+
+    print ("path_to_goal: ", path_to_goal[::-1])
+    print ("cost_of_path: ", cost_of_path)
+    print ("nodes_expanded: ", nodes_expanded)
+    print ("search_depth: ", search_depth)
+    print ("max_search_depth: ", max_search_depth)
 
 def A_star_search(initial_state):
     pass
