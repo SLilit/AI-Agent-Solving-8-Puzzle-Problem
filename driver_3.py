@@ -1,13 +1,13 @@
 import sys
 import math
 import time
-#import resource
+import os
+import psutil
 import queue as Q
-from collections import deque
 
-# the class that reprezents the Puzzle
 goal = (0,1,2,3,4,5,6,7,8)
 
+# the class that reprezents the Puzzle
 class PuzzleState(object):
     
     def __init__(self, config, n, parent=None, action="Initial", cost=0):
@@ -106,105 +106,88 @@ class PuzzleState(object):
             if right_child is not None:
                 self.children.append(right_child)
         
-        return self.children        
+        return self.children
+    
 
-# Function that writes to output.txt
-
-                
-def writeOutput():
-    pass
-
+# Function that writes to output.txt               
+def writeOutput()
+ 
 def bfs_search(state):
     
+    start = calculate_total_cost()
     frontier = Q.Queue()
-    max_search_depth = 0
-    nodes_expanded = 0
+    max_depth = 0
+    nodes = 0
     front = [str(state.config)]
        
     while not test_goal(state.config):
         states = state.expand()
-        nodes_expanded += 1
-        if states[0].cost > max_search_depth:
-            max_search_depth = states[0].cost
+        nodes += 1
+        if states[0].cost > max_depth:
+            max_depth = states[0].cost
         
         for i in range(len(states)):
             if str(states[i].config) not in front:
                 frontier.put(states[i])
                 front.append(str(states[i].config))
         state = frontier.get()
-        if max_search_depth > 80000:
-            print ('too long path')
-            break
         
-    cost_of_path = state.cost
-    search_depth = state.cost
-    path_to_goal = [state.action]
+    cost = state.cost
+    depth = state.cost
+    path = [state.action]
     state = state.parent
     
     while state.action != 'Initial':
-        path_to_goal.append(state.action)
+        path.append(state.action)
         state = state.parent
         
-
-    print ("path_to_goal: ", path_to_goal[::-1])
-    print ("cost_of_path: ", cost_of_path)
-    print ("nodes_expanded: ", nodes_expanded)
-    print ("search_depth: ", search_depth)
-    print ("max_search_depth: ", max_search_depth)
-        
-    
-        
+    end = calculate_total_cost()
+    writeOutput(path[::-1], cost, nodes, depth, max_depth, end[0]- start[0], end[1] - start[1])            
  
 
 def dfs_search(state):
 
+    start = calculate_total_cost()
     frontier = []
-    max_search_depth = 0
-    nodes_expanded = 0
+    max_depth = 0
+    nodes = 0
     front = [str(state.config)]
-    #visited = []
        
     while not test_goal(state.config):
-        #visited.append(front.pop())
+        
         states = state.expand()[::-1]
-        nodes_expanded += 1
-        if states[0].cost > max_search_depth:
-            max_search_depth = states[0].cost
+        nodes += 1
         
         for i in range(len(states)):
             if str(states[i].config) not in front:
-                #continue
-            #elif str(states[i].config) in visited:
-             #   continue
-            #else:
                 frontier.append(states[i])
                 front.append(str(states[i].config))
+                
         state = frontier.pop()
-        if max_search_depth > 80000:
-            print ('too long path')
-            break
         
-    cost_of_path = state.cost
-    search_depth = state.cost
-    path_to_goal = [state.action]
+        if state.cost > max_depth:
+            max_depth = state.cost
+        
+    cost = state.cost
+    depth = state.cost
+    path = [state.action]
     state = state.parent
     
     while state.action != 'Initial':
-        path_to_goal.append(state.action)
+        path.append(state.action)
         state = state.parent
-        
 
-    print ("path_to_goal: ", path_to_goal[::-1])
-    print ("cost_of_path: ", cost_of_path)
-    print ("nodes_expanded: ", nodes_expanded)
-    print ("search_depth: ", search_depth)
-    print ("max_search_depth: ", max_search_depth)
-
+    end = calculate_total_cost()   
+    writeOutput(path[::-1], cost, nodes, depth, max_depth, end[0]- start[0], end[1] - start[1])            
+ 
 def A_star_search(initial_state):
     pass
 
-def calculate_total_cost(state):
-    pass
+def calculate_total_cost():
+    import time
+    time = time.time()
+    process = psutil.Process(os.getpid())
+    return [time,process.memory_info().rss]
 
 def test_goal(puzzle_state):
 
@@ -216,7 +199,7 @@ def test_goal(puzzle_state):
 #Main Function that reads in Input and Runs corresponding algorithm
 
 def main():
-
+    
     sm = sys.argv[1].lower()
     begin_state = sys.argv[2].split(",")
     begin_state = tuple(map(int, begin_state))
