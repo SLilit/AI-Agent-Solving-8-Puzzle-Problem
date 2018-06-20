@@ -110,7 +110,18 @@ class PuzzleState(object):
     
 
 # Function that writes to output.txt               
-def writeOutput()
+def writeOutput(path_to_goal, cost_of_path, nodes_expanded, search_depth, max_search_depth, running_time, max_ram_usage):
+    with open("output.txt", "w") as output:
+        output.write("path_to_goal: {}\n".format(path_to_goal))
+        output.write("cost_of_path: {}\n".format(cost_of_path))
+        output.write("nodes_expanded: {}\n".format(nodes_expanded))
+        output.write("search_depth: {}\n".format(search_depth))
+        output.write("max_search_depth: {}\n".format(max_search_depth))
+        output.write("running_time: {}\n".format(running_time))
+        output.write("max_ram_usage: {}\n".format(max_ram_usage))
+
+        print ("running_time: {}\n".format(running_time))
+        print ("max_ram_usage: {}\n".format(max_ram_usage))
  
 def bfs_search(state):
     
@@ -197,7 +208,6 @@ def test_goal(puzzle_state):
         return False
 
 #Main Function that reads in Input and Runs corresponding algorithm
-
 def main():
     
     sm = sys.argv[1].lower()
