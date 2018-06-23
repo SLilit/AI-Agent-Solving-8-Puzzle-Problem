@@ -17,7 +17,10 @@ class PuzzleState(object):
 
         self.n = n
         self.cost = cost
-        self.parent = parent
+        if parent == None:
+            self.parent = self
+        else:
+            self.parent = parent
         self.action = action
         self.dimension = n
         self.config = config
@@ -120,6 +123,12 @@ def writeOutput(path_to_goal, cost_of_path, nodes_expanded, search_depth, max_se
         output.write("running_time: {}\n".format(running_time))
         output.write("max_ram_usage: {}\n".format(max_ram_usage))
 
+        
+        print ("path_to_goal: {}\n".format(path_to_goal))
+        print ("cost_of_path: {}\n".format(cost_of_path))
+        print ("nodes_expanded: {}\n".format(nodes_expanded))
+        print ("search_depth: {}\n".format(search_depth))
+        print ("max_search_depth: {}\n".format(max_search_depth))
         print ("running_time: {}\n".format(running_time))
         print ("max_ram_usage: {}\n".format(max_ram_usage))
  
@@ -191,8 +200,70 @@ def dfs_search(state):
     end = calculate_total_cost()   
     writeOutput(path[::-1], cost, nodes, depth, max_depth, end[0]- start[0], end[1] - start[1])            
  
-def A_star_search(initial_state):
-    pass
+
+def A_star_search(state):
+
+    start = calculate_total_cost()
+    frontier = {}
+    front = {}
+    mf = []
+    nodes = 0
+    
+       
+    while not test_goal(state.config):
+        nodes += 1
+        states = state.expand()
+        min_f = 26
+        
+        for i in range(len(states)):
+            state_config = states[i].config
+            f = 0
+            if state_config != state.parent.config:
+                for j in range(8):
+                    f = f + abs(int(state_config[j]/3) - int(j/3)) + abs(state_config[j]%3 - j%3)
+                    if state_config[j] != goal[j]:
+                        f += 1
+                
+                if f not in front:
+                    front[f] = [state_config]
+                    frontier[f] = Q.Queue()
+                    frontier[f].put(states[i])
+                    
+                elif state_config not in front[f]:
+                    front[f].append(state_config)
+                    frontier[f].put(states[i])
+                    
+                if f < min_f:
+                    min_f = f
+                    mf.append(f)
+                    
+                while frontier[min_f].empty():
+                    min_f = min(mf)
+                    mf.remove(min_f)
+
+        state = frontier[min_f].get()
+                        
+                
+        #if state.cost > 80:
+         #   print("too long")
+          #  break
+        
+    cost = state.cost
+    depth = state.cost
+    max_depth = state.cost
+    path = [state.action]
+    state = state.parent
+    
+    while state.action != 'Initial':
+        path.append(state.action)
+        state = state.parent
+        
+    end = calculate_total_cost()
+    writeOutput(path[::-1], cost, nodes, depth, max_depth, end[0]- start[0], end[1] - start[1])            
+ 
+
+
+                        
 
 def calculate_total_cost():
     import time
