@@ -124,7 +124,7 @@ def writeOutput(path_to_goal, cost_of_path, nodes_expanded, search_depth, max_se
         output.write("max_ram_usage: {}\n".format(max_ram_usage))
 
         
-        print ("path_to_goal: {}\n".format(path_to_goal))
+       # print ("path_to_goal: {}\n".format(path_to_goal))
         print ("cost_of_path: {}\n".format(cost_of_path))
         print ("nodes_expanded: {}\n".format(nodes_expanded))
         print ("search_depth: {}\n".format(search_depth))
@@ -138,19 +138,25 @@ def bfs_search(state):
     frontier = Q.Queue()
     max_depth = 0
     nodes = 0
-    front = [str(state.config)]
-       
+    front = set()
+    front.add(state.config)
+    
     while not test_goal(state.config):
+        
         states = state.expand()
-        nodes += 1
+        
         if states[0].cost > max_depth:
             max_depth = states[0].cost
         
         for i in range(len(states)):
-            if str(states[i].config) not in front:
+            config = states[i].config
+            if config not in front:
                 frontier.put(states[i])
-                front.append(str(states[i].config))
+                front.add(config)
+                
         state = frontier.get()
+        nodes += 1
+        
         
     cost = state.cost
     depth = state.cost
@@ -171,23 +177,25 @@ def dfs_search(state):
     frontier = []
     max_depth = 0
     nodes = 0
-    front = [str(state.config)]
+    front = set()
+    front.add(state.config)
        
     while not test_goal(state.config):
         
         states = state.expand()[::-1]
-        nodes += 1
         
         for i in range(len(states)):
-            if str(states[i].config) not in front:
+            config = states[i].config
+            if config not in front:
                 frontier.append(states[i])
-                front.append(str(states[i].config))
+                front.add(config)
                 
         state = frontier.pop()
-        
+        nodes += 1
+
         if state.cost > max_depth:
             max_depth = state.cost
-        
+       
     cost = state.cost
     depth = state.cost
     path = [state.action]
@@ -205,53 +213,49 @@ def A_star_search(state):
 
     start = calculate_total_cost()
     frontier = {}
-    front = []
-    mf = []
+    front = set()
+    front.add(state.config)
     nodes = 0
+    max_depth = 0
     
        
     while not test_goal(state.config):
-        nodes += 1
+        
         states = state.expand()[::-1]
         
+        if states[0].cost > max_depth:
+            max_depth = states[0].cost
+        
         for i in range(len(states)):
-            if str(states[i].config) not in front:
+            config = states[i].config
+            if config not in front:
                 f = 0
-                front.append(str(states[i].config))
-
+                front.add(config)
                 for j in range(8):
                     f = f + abs(int(states[i].config[j]/3) - int(j/3)) + abs(states[i].config[j]%3 - j%3)
-                    #if state_config[j] != goal[j]:
+                    #if config[j] != goal[j]:
                      #   f += 1
 
                 f = f + states[i].cost
                 if f not in frontier:
                     frontier[f] = Q.Queue()
                     frontier[f].put(states[i])
-                    #frontier[f] = [states[i]]
                 else:
-                    frontier[f].append(states[i])
+                    frontier[f].put(states[i])
                 
                     
-                               
+                              
         min_f = min(frontier)
         state = frontier[min_f].get()
         if frontier[min_f].empty():
             frontier.pop(min_f)
 
+        nodes += 1
+
         
-        #if len(frontier[min_f]) == 1:
-         #   state = frontier.pop(min_f)[0]
-        #else:
-         #   state = frontier[min_f].pop()
-        
-        if state.cost > 8000:
-            print("too long")
-            break
         
     cost = state.cost
     depth = state.cost
-    max_depth = state.cost
     path = [state.action]
     state = state.parent
     
