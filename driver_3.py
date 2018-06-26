@@ -205,48 +205,49 @@ def A_star_search(state):
 
     start = calculate_total_cost()
     frontier = {}
-    front = {}
+    front = []
     mf = []
     nodes = 0
     
        
     while not test_goal(state.config):
         nodes += 1
-        states = state.expand()
-        min_f = 26
+        states = state.expand()[::-1]
         
         for i in range(len(states)):
-            state_config = states[i].config
-            f = 0
-            if state_config != state.parent.config:
+            if str(states[i].config) not in front:
+                f = 0
+                front.append(str(states[i].config))
+
                 for j in range(8):
-                    f = f + abs(int(state_config[j]/3) - int(j/3)) + abs(state_config[j]%3 - j%3)
-                    if state_config[j] != goal[j]:
-                        f += 1
-                
-                if f not in front:
-                    front[f] = [state_config]
+                    f = f + abs(int(states[i].config[j]/3) - int(j/3)) + abs(states[i].config[j]%3 - j%3)
+                    #if state_config[j] != goal[j]:
+                     #   f += 1
+
+                f = f + states[i].cost
+                if f not in frontier:
                     frontier[f] = Q.Queue()
                     frontier[f].put(states[i])
-                    
-                elif state_config not in front[f]:
-                    front[f].append(state_config)
-                    frontier[f].put(states[i])
-                    
-                if f < min_f:
-                    min_f = f
-                    mf.append(f)
-                    
-                while frontier[min_f].empty():
-                    min_f = min(mf)
-                    mf.remove(min_f)
-
-        state = frontier[min_f].get()
-                        
+                    #frontier[f] = [states[i]]
+                else:
+                    frontier[f].append(states[i])
                 
-        #if state.cost > 80:
-         #   print("too long")
-          #  break
+                    
+                               
+        min_f = min(frontier)
+        state = frontier[min_f].get()
+        if frontier[min_f].empty():
+            frontier.pop(min_f)
+
+        
+        #if len(frontier[min_f]) == 1:
+         #   state = frontier.pop(min_f)[0]
+        #else:
+         #   state = frontier[min_f].pop()
+        
+        if state.cost > 8000:
+            print("too long")
+            break
         
     cost = state.cost
     depth = state.cost
